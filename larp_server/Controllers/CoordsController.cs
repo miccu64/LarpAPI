@@ -14,20 +14,19 @@ namespace Inzynierka_Serwer.Controllers
     [Route("/[controller]")]
     public class CoordsController : Controller
     {
-        private readonly CoordsContext _context;
+        private readonly CoordsContext db;
 
         public CoordsController(CoordsContext context)
         {
-            _context = context;
+            db = context;
         }
 
-        // GET: Coords
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Coords.ToListAsync());
+            return View(await db.Coords.ToListAsync());
         }
 
-        // GET: Coords/Details/5
+        [HttpGet("getById")]
         public async Task<IActionResult> Details(string id)
         {
             if (id == null)
@@ -35,7 +34,7 @@ namespace Inzynierka_Serwer.Controllers
                 return NotFound();
             }
 
-            var coords = await _context.Coords
+            var coords = await db.Coords
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (coords == null)
             {
@@ -45,62 +44,44 @@ namespace Inzynierka_Serwer.Controllers
             return View(coords);
         }
 
-        // GET: Coords/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
         // POST: Coords/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost("send")]
+        [HttpPost("register")]
         //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Longitude,Latitude")] Coords coords)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(coords);
-                _context.SaveChanges();
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                //check if that id exist in db - if yes, just update
+                bool found = db.Coords.Any(from => from.Id == coords.Id);
+                //Coords found = await db.Coords.FindAsync(coords);
+                if (found == false)
+                {
+                    await db.AddAsync(coords);
+                    await db.SaveChangesAsync();
+                    return Ok("Pomyślnie dodano.");
+                }
+                return Ok("Już istnieje taki wpis.");
             }
-            return View(coords);
+            return BadRequest("Niepoprawne dane.");
         }
 
-        // GET: Coords/Edit/5
-        public async Task<IActionResult> Edit(string id)
+        [HttpPut("update")]
+        public async Task<IActionResult> Edit([Bind("Id,Longitude,Latitude")] Coords coords)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var coords = await _context.Coords.FindAsync(id);
-            if (coords == null)
-            {
-                return NotFound();
-            }
-            return View(coords);
-        }
-
-        // POST: Coords/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,Longitude,Latitude")] Coords coords)
-        {
-            if (id != coords.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
+                bool found = db.Coords.Any(from => from.Id == coords.Id);
+                if (!found)
+                {
+                    return NotFound();
+                }
+
                 try
                 {
-                    _context.Update(coords);
-                    await _context.SaveChangesAsync();
+                    db.Update(coords);
+                    await db.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -113,11 +94,48 @@ namespace Inzynierka_Serwer.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return Ok("oki");
             }
-            return View(coords);
+            return BadRequest("Niepoprawne dane.");
         }
 
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            var coords = await db.Coords.FindAsync(id);
+            db.Coords.Remove(coords);
+            await db.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool CoordsExists(string id)
+        {
+            return db.Coords.Any(e => e.Id == id);
+        }
+
+        /*
+        // GET: Coords/Create
+        public IActionResult Create()
+        {
+            return View();
+        }*/
+        /*
+        // GET: Coords/Edit/5
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var coords = await db.Coords.FindAsync(id);
+            if (coords == null)
+            {
+                return NotFound();
+            }
+            return View(coords);
+        }*/
+        /*
         // GET: Coords/Delete/5
         public async Task<IActionResult> Delete(string id)
         {
@@ -126,7 +144,7 @@ namespace Inzynierka_Serwer.Controllers
                 return NotFound();
             }
 
-            var coords = await _context.Coords
+            var coords = await db.Coords
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (coords == null)
             {
@@ -134,21 +152,6 @@ namespace Inzynierka_Serwer.Controllers
             }
 
             return View(coords);
-        }
-
-        // POST: Coords/Delete/5
-        [HttpPost, ActionName("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(string id)
-        {
-            var coords = await _context.Coords.FindAsync(id);
-            _context.Coords.Remove(coords);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool CoordsExists(string id)
-        {
-            return _context.Coords.Any(e => e.Id == id);
-        }
+        }*/
     }
 }
