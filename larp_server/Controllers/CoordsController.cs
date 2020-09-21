@@ -14,9 +14,9 @@ namespace Inzynierka_Serwer.Controllers
     [Route("/[controller]")]
     public class CoordsController : Controller
     {
-        private readonly CoordsContext db;
+        private readonly GamesContext db;
 
-        public CoordsController(CoordsContext context)
+        public CoordsController(GamesContext context)
         {
             db = context;
         }
@@ -49,7 +49,7 @@ namespace Inzynierka_Serwer.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("register")]
         //[ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Longitude,Latitude")] Coords coords)
+        public async Task<IActionResult> Create([Bind("Id,Longitude,Latitude")] Coord coords)
         {
             if (ModelState.IsValid)
             {
@@ -68,7 +68,7 @@ namespace Inzynierka_Serwer.Controllers
         }
 
         [HttpPut("update")]
-        public async Task<IActionResult> Edit([Bind("Id,Longitude,Latitude")] Coords coords)
+        public async Task<IActionResult> Edit([Bind("Id,Longitude,Latitude")] Coord coords)
         {
             if (ModelState.IsValid)
             {

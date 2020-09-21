@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace larp_server.Models
 {
-    public class Coords
+    public class Coord
     {
         public string Id { get; set; }
         public double Longitude { get; set; }

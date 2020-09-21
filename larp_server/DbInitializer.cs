@@ -10,26 +10,44 @@ namespace larp_server
 {
     public static class DbInitializer
     {
-        public static void Initialize(CoordsContext context)
+        public static void Initialize(GamesContext context)
         {
             context.Database.EnsureCreated();
 
             // Look for any students.
             if (context.Coords.Any())
             {
-                return;   // DB has been seeded
+                //return;   // DB has been seeded
             }
 
-            var coord = new Coords[]
+            var coord = new Coord[]
             {
-            new Coords{Id="aaa",Longitude=20,Latitude=30},
-            new Coords{Id="asaa",Longitude=20,Latitude=30},
-            new Coords{Id="adaa",Longitude=20,Latitude=30}
+            new Coord{Id="aaa",Longitude=20,Latitude=30},
+            new Coord{Id="asaa",Longitude=20,Latitude=30},
+            new Coord{Id="adaa",Longitude=20,Latitude=30}
             };
-            foreach (Coords s in coord)
+            foreach (Coord s in coord)
             {
                 context.Coords.Add(s);
             }
+            context.SaveChanges();
+
+            var player = new Player[]
+            {
+                new Player{Name="sss",Email="dsadsa"},
+                new Player{Name="ssss",Email="dsasdsa"}
+            };
+            foreach (Player p in player)
+            {
+                context.Players.Add(p);
+            }
+            context.SaveChanges();
+
+            var room = new Room[]
+            {
+                new Room{Name="dsad",PlayersList=player}
+            };
+            context.Rooms.Add(room[0]);
             context.SaveChanges();
         }
     }

@@ -24,7 +24,7 @@ namespace larp_server
                 var services = scope.ServiceProvider;
                 try
                 {
-                    var context = services.GetRequiredService<CoordsContext>();
+                    var context = services.GetRequiredService<GamesContext>();
                     DbInitializer.Initialize(context);
                 }
                 catch (Exception ex)
