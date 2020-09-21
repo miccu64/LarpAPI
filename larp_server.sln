@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "larp_server", "larp_server\larp_server.csproj", "{4200BD28-F91D-48A0-A197-F70F65DFFF74}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4200BD28-F91D-48A0-A197-F70F65DFFF74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4200BD28-F91D-48A0-A197-F70F65DFFF74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4200BD28-F91D-48A0-A197-F70F65DFFF74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4200BD28-F91D-48A0-A197-F70F65DFFF74}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {75403F76-9582-4CB8-B0A6-D7A5D3DF330E}
+	EndGlobalSection
+EndGlobal
