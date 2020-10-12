@@ -17,6 +17,19 @@ namespace Server.Models
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<PlayerRoom>()
+            .HasKey(t => new { t.PlayerName, t.RoomName });
+
+            modelBuilder.Entity<PlayerRoom>()
+                .HasOne(pt => pt.Player)
+                .WithMany(p => p.PlayerRoomList)
+                .HasForeignKey(pt => pt.PlayerName);
+
+            modelBuilder.Entity<PlayerRoom>()
+                .HasOne(pt => pt.Room)
+                .WithMany(t => t.PlayerRoomList)
+                .HasForeignKey(pt => pt.RoomName);
+
             modelBuilder.Entity<Coord>().ToTable("Coords");
             modelBuilder.Entity<Player>().ToTable("Player");
             modelBuilder.Entity<Room>().ToTable("Room");

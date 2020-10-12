@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Server.Models;
+using larp_server.Hubs;
 
 namespace larp_server
 {
@@ -28,6 +29,7 @@ namespace larp_server
             services.AddDbContext<GamesContext>(options =>
         options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllersWithViews();
+            services.AddSignalR();
 
         }
 
@@ -56,6 +58,7 @@ namespace larp_server
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapHub<GameHub>("/gamehub");
             });
         }
     }

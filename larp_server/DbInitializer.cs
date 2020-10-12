@@ -17,7 +17,7 @@ namespace larp_server
             // Look for any students.
             if (context.Coords.Any())
             {
-                //return;   // DB has been seeded
+                return;   // DB has been seeded
             }
 
             var coord = new Coord[]
@@ -45,7 +45,7 @@ namespace larp_server
 
             var room = new Room[]
             {
-                new Room{Name="dsad",PlayersList=player}
+                new Room{Name="dsad"}
             };
             context.Rooms.Add(room[0]);
             context.SaveChanges();
