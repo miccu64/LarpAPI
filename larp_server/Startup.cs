@@ -26,16 +26,29 @@ namespace larp_server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+                options.AddDefaultPolicy(builder =>
+                builder//.AllowAnyOrigin()
+                       .AllowAnyOrigin()
+                       //.SetIsOriginAllowed((host) => true)
+                       .AllowAnyMethod()
+                       //.AllowCredentials()
+                       .AllowAnyHeader()));
             services.AddDbContext<GamesContext>(options =>
-        options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllersWithViews();
-            services.AddSignalR();
-
+            services.AddSignalR().AddHubOptions<GameHub>(options =>
+            {
+                options.EnableDetailedErrors = true;
+            });
+            services.AddMvc(option => option.EnableEndpointRouting = false);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -46,19 +59,20 @@ namespace larp_server
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseStaticFiles();
-
+            app.UseAuthentication();
             app.UseRouting();
 
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<GameHub>("/gamehub");
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
-                endpoints.MapHub<GameHub>("/gamehub");
+                
             });
         }
     }

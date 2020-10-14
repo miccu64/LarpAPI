@@ -33,7 +33,8 @@ namespace Inzynierka_Serwer.Controllers
             {
                 return NotFound();
             }
-
+            Console.WriteLine(id);
+            
             var coords = await db.Coords
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (coords == null)
