@@ -25,7 +25,7 @@ namespace larp_server
                 try
                 {
                     var context = services.GetRequiredService<GamesContext>();
-                    DbInitializer.Initialize(context);
+                    //DbInitializer.Initialize(context);
                 }
                 catch (Exception ex)
                 {

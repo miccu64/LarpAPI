@@ -19,7 +19,7 @@ namespace larp_server
             {
                 return;   // DB has been seeded
             }
-
+            /*
             var coord = new Coord[]
             {
             new Coord{Id="aaa",Longitude=20,Latitude=30},
@@ -30,12 +30,12 @@ namespace larp_server
             {
                 context.Coords.Add(s);
             }
-            context.SaveChanges();
+            context.SaveChanges();*/
 
             var player = new Player[]
             {
-                new Player{Name="sss",Email="dsadsa"},
-                new Player{Name="ssss",Email="dsasdsa"}
+                new Player("sss","dsadsa", "DSdsasa","dsadsadsa"),
+                new Player("ssss","dsadsas", "DSdsassssa","dsadsadsagfdfd")
             };
             foreach (Player p in player)
             {
@@ -45,7 +45,7 @@ namespace larp_server
 
             var room = new Room[]
             {
-                new Room{Name="dsad"}
+                new Room("dsad","aaaa",player[0])
             };
             context.Rooms.Add(room[0]);
             context.SaveChanges();

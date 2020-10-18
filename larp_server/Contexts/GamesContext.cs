@@ -14,25 +14,20 @@ namespace Server.Models
 
         public GamesContext(DbContextOptions<GamesContext> options) : base(options)
         {
+            this.Database.Migrate();
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<PlayerRoom>()
-            .HasKey(t => new { t.PlayerName, t.RoomName });
-
-            modelBuilder.Entity<PlayerRoom>()
-                .HasOne(pt => pt.Player)
-                .WithMany(p => p.PlayerRoomList)
-                .HasForeignKey(pt => pt.PlayerName);
-
-            modelBuilder.Entity<PlayerRoom>()
-                .HasOne(pt => pt.Room)
-                .WithMany(t => t.PlayerRoomList)
-                .HasForeignKey(pt => pt.RoomName);
-
-            modelBuilder.Entity<Coord>().ToTable("Coords");
-            modelBuilder.Entity<Player>().ToTable("Player");
-            modelBuilder.Entity<Room>().ToTable("Room");
+            modelBuilder.Entity<Room>()
+                .HasMany(c => c.CoordsList)
+                .WithOne(r => r.Room);
+            modelBuilder.Entity<Player>()
+                .HasMany(c => c.CoordsList)
+                .WithOne(p => p.Player);
+            modelBuilder.Entity<Coord>().ToTable("Coords").HasKey(k => new { k.PlayerId, k.RoomId });
+            
+            //modelBuilder.Entity<Player>().ToTable("Player");
+            //modelBuilder.Entity<Room>().ToTable("Room");
         }
     }
 

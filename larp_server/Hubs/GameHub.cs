@@ -22,7 +22,7 @@ namespace larp_server.Hubs
         {
             await Clients.All.SendAsync("ReceiveMessage", user, message);
         }
-        public async Task CreateRoom(string roomName)
+        public async Task CreateRoom(string roomName, string password, string playerName)
         {
             bool found = db.Rooms.Any(from => from.Name == roomName);
             if (!found)
@@ -30,6 +30,9 @@ namespace larp_server.Hubs
                 await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
                 await Groups.AddToGroupAsync(Context.ConnectionId, roomName + "-team1");
                 await Groups.AddToGroupAsync(Context.ConnectionId, roomName + "-team2");
+                Player player = db.Players.First(i => i.Name == playerName);
+                Room room = new Room(roomName, password, player);
+                //await db.Rooms.AddAsync();
             }
             //else Clients.
         }
@@ -45,9 +48,9 @@ namespace larp_server.Hubs
         public async Task UpdateLocation([Bind("Id,Longitude,Latitude")] Coord coords, string roomName, int team)
         {
             //check if that id exist in db - if yes, just update
-            bool found = db.Coords.Any(from => from.Id == coords.Id);
+            //bool found = db.Coords.Any(from => from.Id == coords.Id);
             //Coords found = await db.Coords.FindAsync(coords);
-            if (found == false)
+            //if (found == false)
             {
                 await db.AddAsync(coords);
                 await db.SaveChangesAsync();

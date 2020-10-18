@@ -42,6 +42,8 @@ namespace larp_server
                 options.EnableDetailedErrors = true;
             });
             services.AddMvc(option => option.EnableEndpointRouting = false);
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -74,6 +76,12 @@ namespace larp_server
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 
             });
+
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetRequiredService<GamesContext>();
+                context.Database.Migrate();
+            }
         }
     }
 }
