@@ -33,6 +33,9 @@ namespace larp_server.Migrations
                     b.Property<double>("Longitude")
                         .HasColumnType("double");
 
+                    b.Property<int>("TeamId")
+                        .HasColumnType("int");
+
                     b.HasKey("PlayerId", "RoomId");
 
                     b.HasIndex("RoomId");
@@ -71,9 +74,12 @@ namespace larp_server.Migrations
                         .HasColumnType("varchar(30)")
                         .HasMaxLength(30);
 
-                    b.Property<string>("Admin")
+                    b.Property<string>("AdminName")
                         .HasColumnType("varchar(30)")
                         .HasMaxLength(30);
+
+                    b.Property<string>("AdminToken")
+                        .HasColumnType("varchar(150)");
 
                     b.Property<DateTime>("LastPlayed")
                         .HasColumnType("datetime");
@@ -83,6 +89,8 @@ namespace larp_server.Migrations
                         .HasMaxLength(30);
 
                     b.HasKey("Name");
+
+                    b.HasIndex("AdminToken");
 
                     b.ToTable("Rooms");
                 });
@@ -100,6 +108,13 @@ namespace larp_server.Migrations
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("larp_server.Models.Room", b =>
+                {
+                    b.HasOne("larp_server.Models.Player", "Admin")
+                        .WithMany()
+                        .HasForeignKey("AdminToken");
                 });
 #pragma warning restore 612, 618
         }

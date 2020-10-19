@@ -27,12 +27,19 @@ namespace larp_server.Migrations
                 {
                     Name = table.Column<string>(maxLength: 30, nullable: false),
                     Password = table.Column<string>(maxLength: 30, nullable: true),
-                    Admin = table.Column<string>(maxLength: 30, nullable: true),
+                    AdminName = table.Column<string>(maxLength: 30, nullable: true),
+                    AdminToken = table.Column<string>(nullable: true),
                     LastPlayed = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Rooms", x => x.Name);
+                    table.ForeignKey(
+                        name: "FK_Rooms_Players_AdminToken",
+                        column: x => x.AdminToken,
+                        principalTable: "Players",
+                        principalColumn: "Token",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -41,6 +48,7 @@ namespace larp_server.Migrations
                 {
                     RoomId = table.Column<string>(maxLength: 30, nullable: false),
                     PlayerId = table.Column<string>(maxLength: 30, nullable: false),
+                    TeamId = table.Column<int>(nullable: false),
                     Longitude = table.Column<double>(nullable: false),
                     Latitude = table.Column<double>(nullable: false)
                 },
@@ -65,6 +73,11 @@ namespace larp_server.Migrations
                 name: "IX_Coords_RoomId",
                 table: "Coords",
                 column: "RoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rooms_AdminToken",
+                table: "Rooms",
+                column: "AdminToken");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -73,10 +86,10 @@ namespace larp_server.Migrations
                 name: "Coords");
 
             migrationBuilder.DropTable(
-                name: "Players");
+                name: "Rooms");
 
             migrationBuilder.DropTable(
-                name: "Rooms");
+                name: "Players");
         }
     }
 }

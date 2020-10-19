@@ -14,6 +14,7 @@ namespace larp_server.Models
         public string PlayerId { get; set; }
         public Room Room { get; set; }
         public Player Player { get; set; }
+        public int TeamId { get; set; }
         public double Longitude { get; set; }
         public double Latitude { get; set; }
     }

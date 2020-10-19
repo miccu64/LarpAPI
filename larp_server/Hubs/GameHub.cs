@@ -22,19 +22,20 @@ namespace larp_server.Hubs
         {
             await Clients.All.SendAsync("ReceiveMessage", user, message);
         }
-        public async Task CreateRoom(string roomName, string password, string playerName)
+        public async Task CreateRoom(string roomName, string password, string token)
         {
-            bool found = db.Rooms.Any(from => from.Name == roomName);
-            if (!found)
+            //check if toom with that name exists
+            if (!db.Rooms.Any(from => from.Name == roomName))
             {
+                Player player = db.Players.First(i => i.Token == token);
+                Room room = new Room(roomName, password, player);
                 await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
                 await Groups.AddToGroupAsync(Context.ConnectionId, roomName + "-team1");
                 await Groups.AddToGroupAsync(Context.ConnectionId, roomName + "-team2");
-                Player player = db.Players.First(i => i.Name == playerName);
-                Room room = new Room(roomName, password, player);
+                
                 //await db.Rooms.AddAsync();
             }
-            //else Clients.
+            else await Clients.Caller.SendAsync("CreateRoom", false);
         }
         public async Task JoinRoom(string roomName, int team)
         {

@@ -15,7 +15,8 @@ namespace larp_server.Models
         [StringLength(30)]
         public string Password { get; set; }
         [StringLength(30)]
-        public string Admin { get; set; }
+        public string AdminName { get; set; }
+        public Player Admin { get; set; }
         public DateTime LastPlayed { get; set; }
         public ICollection<Coord> CoordsList { get; set; }
 
@@ -26,7 +27,8 @@ namespace larp_server.Models
         {
             Name = roomName;
             Password = password;
-            Admin = player.Name;
+            Admin = player;
+            AdminName = player.Name;
             LastPlayed = DateTime.UtcNow;
         }
     }
