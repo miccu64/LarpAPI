@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 using Server.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,20 +23,22 @@ namespace larp_server.Hubs
         {
             await Clients.All.SendAsync("ReceiveMessage", user, message);
         }
-        public async Task CreateRoom(string roomName, string password, string token)
+        public async Task CreateRoom([Required] string roomName, [Required] string password, [Required] string token)
         {
-            //check if toom with that name exists
-            if (!db.Rooms.Any(from => from.Name == roomName))
+            if (db.Players.Any(i => i.Token == token)) 
             {
-                Player player = db.Players.First(i => i.Token == token);
-                Room room = new Room(roomName, password, player);
-                await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
-                await Groups.AddToGroupAsync(Context.ConnectionId, roomName + "-team1");
-                await Groups.AddToGroupAsync(Context.ConnectionId, roomName + "-team2");
-                
-                //await db.Rooms.AddAsync();
+                //check if toom with that name exists
+                if (!db.Rooms.Any(from => from.Name == roomName))
+                {
+                    Player player = db.Players.First(i => i.Token == token);
+                    Room room = new Room(roomName, password, player);
+                    await db.Rooms.AddAsync(room);
+                    await db.SaveChangesAsync();
+                    await Clients.Caller.SendAsync("SuccessMessage", "Poprawnie utworzono pokój.");
+                }
+                else await Clients.Caller.SendAsync("ErrorMessage", "Taki pokój już istnieje. Podaj inną nazwę.");
             }
-            else await Clients.Caller.SendAsync("CreateRoom", false);
+            else await Clients.Caller.SendAsync("ErrorMessage", "Niepoprawny token. Zaloguj się ponownie.");
         }
         public async Task JoinRoom(string roomName, int team)
         {
@@ -58,6 +61,12 @@ namespace larp_server.Hubs
 
                 await Clients.Group(roomName).SendAsync(Context.User.Identity.Name + "has joined.");
             }
+        }
+
+        public override Task OnConnectedAsync()
+        {
+            var id = Context.User.Identity;
+            return base.OnConnectedAsync();
         }
     }
 }

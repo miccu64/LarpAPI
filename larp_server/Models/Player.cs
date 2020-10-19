@@ -11,7 +11,6 @@ namespace larp_server.Models
     public class Player
     {
         [Key]
-        //[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [StringLength(150)]
         public string Token { get; set; }
 
@@ -25,6 +24,9 @@ namespace larp_server.Models
 
         [StringLength(30)]
         public string Password { get; set; }
+        [StringLength(30)]
+        public string ConnectionID { get; set; }
+        public bool IsConnected { get; set; }
 
         public ICollection<Coord> CoordsList { get; set; }
 

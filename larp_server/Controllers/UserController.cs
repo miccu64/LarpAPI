@@ -44,9 +44,13 @@ namespace Inzynierka_Serwer.Controllers
         [HttpGet("login")]
         public async Task<IActionResult> Login([Required] string email, [Required] string password)
         {
-            Player player = await db.Players.FirstOrDefaultAsync(p => p.Email == email);
-            if (player.Password == password)
-                return Ok(player.Token);
+            if(db.Players.Any(p => p.Email == email))
+            {
+                Player player = await db.Players.FirstOrDefaultAsync(p => p.Email == email);
+                if (player.Password == password)
+                    return Ok(player.Token);
+                else return BadRequest("Niepoprawny login lub hasło.");
+            } 
             else return BadRequest("Niepoprawny login lub hasło.");
         }
     }

@@ -14,7 +14,9 @@ namespace larp_server.Migrations
                     Token = table.Column<string>(maxLength: 150, nullable: false),
                     Email = table.Column<string>(maxLength: 80, nullable: true),
                     Name = table.Column<string>(maxLength: 30, nullable: true),
-                    Password = table.Column<string>(maxLength: 30, nullable: true)
+                    Password = table.Column<string>(maxLength: 30, nullable: true),
+                    ConnectionID = table.Column<string>(maxLength: 30, nullable: true),
+                    IsConnected = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
