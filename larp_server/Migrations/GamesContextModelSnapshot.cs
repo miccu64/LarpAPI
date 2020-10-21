@@ -27,6 +27,13 @@ namespace larp_server.Migrations
                         .HasColumnType("varchar(30)")
                         .HasMaxLength(30);
 
+                    b.Property<string>("ConnectionID")
+                        .HasColumnType("varchar(30)")
+                        .HasMaxLength(30);
+
+                    b.Property<bool>("IsConnected")
+                        .HasColumnType("bit");
+
                     b.Property<double>("Latitude")
                         .HasColumnType("double");
 
@@ -49,17 +56,10 @@ namespace larp_server.Migrations
                         .HasColumnType("varchar(150)")
                         .HasMaxLength(150);
 
-                    b.Property<string>("ConnectionID")
-                        .HasColumnType("varchar(30)")
-                        .HasMaxLength(30);
-
                     b.Property<string>("Email")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("varchar(80)")
                         .HasMaxLength(80);
-
-                    b.Property<bool>("IsConnected")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .ValueGeneratedOnAdd()
