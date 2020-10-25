@@ -9,7 +9,7 @@ using Server.Models;
 namespace larp_server.Migrations
 {
     [DbContext(typeof(GamesContext))]
-    [Migration("20201021122711_Initial")]
+    [Migration("20201025172454_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,10 +26,6 @@ namespace larp_server.Migrations
                         .HasMaxLength(30);
 
                     b.Property<string>("RoomId")
-                        .HasColumnType("varchar(30)")
-                        .HasMaxLength(30);
-
-                    b.Property<string>("ConnectionID")
                         .HasColumnType("varchar(30)")
                         .HasMaxLength(30);
 
@@ -57,6 +53,10 @@ namespace larp_server.Migrations
                     b.Property<string>("Token")
                         .HasColumnType("varchar(150)")
                         .HasMaxLength(150);
+
+                    b.Property<string>("ConnectionID")
+                        .HasColumnType("varchar(30)")
+                        .HasMaxLength(30);
 
                     b.Property<string>("Email")
                         .ValueGeneratedOnAdd()

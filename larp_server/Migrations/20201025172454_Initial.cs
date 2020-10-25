@@ -14,7 +14,8 @@ namespace larp_server.Migrations
                     Token = table.Column<string>(maxLength: 150, nullable: false),
                     Email = table.Column<string>(maxLength: 80, nullable: true),
                     Name = table.Column<string>(maxLength: 30, nullable: true),
-                    Password = table.Column<string>(maxLength: 30, nullable: true)
+                    Password = table.Column<string>(maxLength: 30, nullable: true),
+                    ConnectionID = table.Column<string>(maxLength: 30, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -49,7 +50,6 @@ namespace larp_server.Migrations
                     RoomId = table.Column<string>(maxLength: 30, nullable: false),
                     PlayerId = table.Column<string>(maxLength: 30, nullable: false),
                     TeamId = table.Column<int>(nullable: false),
-                    ConnectionID = table.Column<string>(maxLength: 30, nullable: true),
                     IsConnected = table.Column<bool>(nullable: false),
                     Longitude = table.Column<double>(nullable: false),
                     Latitude = table.Column<double>(nullable: false)

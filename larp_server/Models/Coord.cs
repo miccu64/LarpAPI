@@ -16,8 +16,6 @@ namespace larp_server.Models
         public Player Player { get; set; }
 
         public int TeamId { get; set; }
-        [StringLength(30)]
-        public string ConnectionID { get; set; }
         public bool IsConnected { get; set; }
         public double Longitude { get; set; }
         public double Latitude { get; set; }
@@ -29,7 +27,6 @@ namespace larp_server.Models
             Player = player;
             PlayerId = player.Name;
             RoomId = room.Name;
-            ConnectionID = conn;
             IsConnected = true;
             TeamId = 0;
             Latitude = 0;

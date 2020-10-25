@@ -25,6 +25,8 @@ namespace larp_server.Models
         [StringLength(30)]
         public string Password { get; set; }
         [StringLength(30)]
+        public string ConnectionID { get; set; }
+        [StringLength(30)]
 
         public ICollection<Coord> CoordsList { get; set; }
 

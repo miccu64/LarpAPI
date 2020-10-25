@@ -27,10 +27,6 @@ namespace larp_server.Migrations
                         .HasColumnType("varchar(30)")
                         .HasMaxLength(30);
 
-                    b.Property<string>("ConnectionID")
-                        .HasColumnType("varchar(30)")
-                        .HasMaxLength(30);
-
                     b.Property<bool>("IsConnected")
                         .HasColumnType("bit");
 
@@ -55,6 +51,10 @@ namespace larp_server.Migrations
                     b.Property<string>("Token")
                         .HasColumnType("varchar(150)")
                         .HasMaxLength(150);
+
+                    b.Property<string>("ConnectionID")
+                        .HasColumnType("varchar(30)")
+                        .HasMaxLength(30);
 
                     b.Property<string>("Email")
                         .ValueGeneratedOnAdd()
