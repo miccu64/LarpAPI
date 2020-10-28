@@ -18,13 +18,13 @@ namespace Server.Models
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Room>()
-                .HasMany(c => c.CoordsList)
-                .WithOne(r => r.Room);
             modelBuilder.Entity<Player>()
                 .HasMany(c => c.CoordsList)
                 .WithOne(p => p.Player);
-            modelBuilder.Entity<Coord>().ToTable("Coords").HasKey(k => new { k.PlayerId, k.RoomId });
+            modelBuilder.Entity<Room>()
+                .HasMany(c => c.CoordsList)
+                .WithOne(r => r.Room);
+            modelBuilder.Entity<Coord>().ToTable("Coords").HasKey(k => new { k.PlayerName, k.RoomName });
             
             //modelBuilder.Entity<Player>().ToTable("Player");
             //modelBuilder.Entity<Room>().ToTable("Room");

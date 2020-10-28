@@ -1,5 +1,6 @@
 ﻿using larp_server.Models;
 using larp_server.Security;
+using larp_server.Views;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -8,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace larp_server.Hubs
@@ -22,6 +25,8 @@ namespace larp_server.Hubs
             db = context;
             JWTInstance = new JWTWorker();
         }
+
+
         public async Task SendMessage(string user, string message)
         {
             await Clients.All.SendAsync("ReceiveMessage", user, message);
@@ -33,7 +38,7 @@ namespace larp_server.Hubs
                 await Clients.Caller.SendAsync("ErrorMessage", "Taki e-mail już istnieje. Podaj inny.");
                 return;
             }
-            if (db.Players.Any(from => from.Name == name))
+            if (db.Players.Any(from => from.Nickname == name))
             {
                 await Clients.Caller.SendAsync("ErrorMessage", "Taki login już istnieje. Podaj inny.");
                 return;
@@ -76,7 +81,7 @@ namespace larp_server.Hubs
         }
         private async void AddCoord(Room room, Player player)
         {
-            Coord coord = new Coord(room, player, Context.ConnectionId);
+            Coord coord = new Coord(room, player);
             player.CoordsList.Add(coord);
             room.CoordsList.Add(coord);
             await db.Coords.AddAsync(coord);
@@ -103,25 +108,19 @@ namespace larp_server.Hubs
             }
 
             Player player = db.Players.First(from => from.Token == token);
-            bool isNull = (player.CoordsList == null);
             //disconnect player from all games
-            if (!isNull) foreach (Coord c in player.CoordsList)
+            foreach (Coord c in player.CoordsList)
             {
                 c.IsConnected = false;
             }
 
             //check if player were playing that game
-            if (isNull)
-                AddCoord(room, player);
-            else if (!player.CoordsList.Any(c => c.RoomId == roomName))
+            if (!player.CoordsList.Any(c => c.RoomName == roomName))
                 AddCoord(room, player);
             else
             {
-                //SPRAWDZIC CZY AKTUALIZUJAC V1 AKTUALIZUJE TEZ V2!!!
-                Coord coord = player.CoordsList.First(c => c.RoomId == roomName);
-                Coord coord2 = room.CoordsList.First(c => c.RoomId == roomName);
+                Coord coord = player.CoordsList.First(c => c.RoomName == roomName);
                 coord.IsConnected = true;
-                db.Coords.Update(coord);
             }
             player.ConnectionID = Context.ConnectionId;
             await db.SaveChangesAsync();
@@ -141,8 +140,16 @@ namespace larp_server.Hubs
                 {
                     c.Latitude = lat;
                     c.Longitude = lon;
-                    db.Coords.Update(c);
                     await db.SaveChangesAsync();
+
+                    List<PlayerCoordsView> list = new List<PlayerCoordsView>();
+                    foreach (Coord c2 in c.Room.CoordsList)
+                    {
+                        PlayerCoordsView view = new PlayerCoordsView(c2.PlayerName, c2.Latitude, c2.Longitude);
+                        list.Add(view);
+                    }
+                    string json = JsonSerializer.Serialize(list);
+                    await Clients.Caller.SendAsync("SuccessMessage", json);
                     break;
                 }
             }

@@ -32,7 +32,7 @@ namespace Inzynierka_Serwer.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterNewUser([Required] string email, [Required] string name, [Required] string password)
         {
-            if (db.Players.Any(from => from.Email == email || from.Name == name))
+            if (db.Players.Any(from => from.Email == email || from.Nickname == name))
                 return BadRequest("Taki e-mail lub login już istnieje. Podaj inny.");
             string token = JWTInstance.Encode(name, email);
             Player player = new Player(email, name, password, token);

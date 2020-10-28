@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore;
 using Server.Models;
+using System.Threading;
+using System.Diagnostics;
 
 namespace larp_server
 {
@@ -16,6 +18,12 @@ namespace larp_server
     {
         public static void Main(string[] args)
         {
+            TimeSpan startTimeSpan = TimeSpan.Zero;
+            TimeSpan periodTimeSpan = TimeSpan.FromSeconds(1);
+            Timer timer = new Timer((e) =>
+            {
+                Debug.Write("AAAA");
+            }, null, startTimeSpan, periodTimeSpan);
             //CreateHostBuilder(args).Build().Run();
             var host = CreateHostBuilder(args).Build();
 
@@ -35,6 +43,7 @@ namespace larp_server
             }
 
             host.Run();
+
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

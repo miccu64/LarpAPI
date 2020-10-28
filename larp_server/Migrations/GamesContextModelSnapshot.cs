@@ -19,11 +19,11 @@ namespace larp_server.Migrations
 
             modelBuilder.Entity("larp_server.Models.Coord", b =>
                 {
-                    b.Property<string>("PlayerId")
+                    b.Property<string>("PlayerName")
                         .HasColumnType("varchar(30)")
                         .HasMaxLength(30);
 
-                    b.Property<string>("RoomId")
+                    b.Property<string>("RoomName")
                         .HasColumnType("varchar(30)")
                         .HasMaxLength(30);
 
@@ -36,21 +36,26 @@ namespace larp_server.Migrations
                     b.Property<double>("Longitude")
                         .HasColumnType("double");
 
+                    b.Property<string>("PlayerNickname")
+                        .HasColumnType("varchar(30)");
+
                     b.Property<int>("TeamId")
                         .HasColumnType("int");
 
-                    b.HasKey("PlayerId", "RoomId");
+                    b.HasKey("PlayerName", "RoomName");
 
-                    b.HasIndex("RoomId");
+                    b.HasIndex("PlayerNickname");
+
+                    b.HasIndex("RoomName");
 
                     b.ToTable("Coords");
                 });
 
             modelBuilder.Entity("larp_server.Models.Player", b =>
                 {
-                    b.Property<string>("Token")
-                        .HasColumnType("varchar(150)")
-                        .HasMaxLength(150);
+                    b.Property<string>("Nickname")
+                        .HasColumnType("varchar(30)")
+                        .HasMaxLength(30);
 
                     b.Property<string>("ConnectionID")
                         .HasColumnType("varchar(30)")
@@ -61,16 +66,16 @@ namespace larp_server.Migrations
                         .HasColumnType("varchar(80)")
                         .HasMaxLength(80);
 
-                    b.Property<string>("Name")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(30)")
-                        .HasMaxLength(30);
-
                     b.Property<string>("Password")
                         .HasColumnType("varchar(30)")
                         .HasMaxLength(30);
 
-                    b.HasKey("Token");
+                    b.Property<string>("Token")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("varchar(150)")
+                        .HasMaxLength(150);
+
+                    b.HasKey("Nickname");
 
                     b.ToTable("Players");
                 });
@@ -81,12 +86,8 @@ namespace larp_server.Migrations
                         .HasColumnType("varchar(30)")
                         .HasMaxLength(30);
 
-                    b.Property<string>("AdminName")
-                        .HasColumnType("varchar(30)")
-                        .HasMaxLength(30);
-
-                    b.Property<string>("AdminToken")
-                        .HasColumnType("varchar(150)");
+                    b.Property<string>("AdminNickname")
+                        .HasColumnType("varchar(30)");
 
                     b.Property<DateTime>("LastPlayed")
                         .HasColumnType("datetime");
@@ -97,7 +98,7 @@ namespace larp_server.Migrations
 
                     b.HasKey("Name");
 
-                    b.HasIndex("AdminToken");
+                    b.HasIndex("AdminNickname");
 
                     b.ToTable("Rooms");
                 });
@@ -106,13 +107,11 @@ namespace larp_server.Migrations
                 {
                     b.HasOne("larp_server.Models.Player", "Player")
                         .WithMany("CoordsList")
-                        .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PlayerNickname");
 
                     b.HasOne("larp_server.Models.Room", "Room")
                         .WithMany("CoordsList")
-                        .HasForeignKey("RoomId")
+                        .HasForeignKey("RoomName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -121,7 +120,7 @@ namespace larp_server.Migrations
                 {
                     b.HasOne("larp_server.Models.Player", "Admin")
                         .WithMany()
-                        .HasForeignKey("AdminToken");
+                        .HasForeignKey("AdminNickname");
                 });
 #pragma warning restore 612, 618
         }

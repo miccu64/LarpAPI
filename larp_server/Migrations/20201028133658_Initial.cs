@@ -11,15 +11,15 @@ namespace larp_server.Migrations
                 name: "Players",
                 columns: table => new
                 {
-                    Token = table.Column<string>(maxLength: 150, nullable: false),
+                    Nickname = table.Column<string>(maxLength: 30, nullable: false),
+                    Token = table.Column<string>(maxLength: 150, nullable: true),
                     Email = table.Column<string>(maxLength: 80, nullable: true),
-                    Name = table.Column<string>(maxLength: 30, nullable: true),
                     Password = table.Column<string>(maxLength: 30, nullable: true),
                     ConnectionID = table.Column<string>(maxLength: 30, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Players", x => x.Token);
+                    table.PrimaryKey("PK_Players", x => x.Nickname);
                 });
 
             migrationBuilder.CreateTable(
@@ -28,18 +28,17 @@ namespace larp_server.Migrations
                 {
                     Name = table.Column<string>(maxLength: 30, nullable: false),
                     Password = table.Column<string>(maxLength: 30, nullable: true),
-                    AdminName = table.Column<string>(maxLength: 30, nullable: true),
-                    AdminToken = table.Column<string>(nullable: true),
-                    LastPlayed = table.Column<DateTime>(nullable: false)
+                    LastPlayed = table.Column<DateTime>(nullable: false),
+                    AdminNickname = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Rooms", x => x.Name);
                     table.ForeignKey(
-                        name: "FK_Rooms_Players_AdminToken",
-                        column: x => x.AdminToken,
+                        name: "FK_Rooms_Players_AdminNickname",
+                        column: x => x.AdminNickname,
                         principalTable: "Players",
-                        principalColumn: "Token",
+                        principalColumn: "Nickname",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -47,39 +46,45 @@ namespace larp_server.Migrations
                 name: "Coords",
                 columns: table => new
                 {
-                    RoomId = table.Column<string>(maxLength: 30, nullable: false),
-                    PlayerId = table.Column<string>(maxLength: 30, nullable: false),
+                    RoomName = table.Column<string>(maxLength: 30, nullable: false),
+                    PlayerName = table.Column<string>(maxLength: 30, nullable: false),
                     TeamId = table.Column<int>(nullable: false),
                     IsConnected = table.Column<bool>(nullable: false),
                     Longitude = table.Column<double>(nullable: false),
-                    Latitude = table.Column<double>(nullable: false)
+                    Latitude = table.Column<double>(nullable: false),
+                    PlayerNickname = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Coords", x => new { x.PlayerId, x.RoomId });
+                    table.PrimaryKey("PK_Coords", x => new { x.PlayerName, x.RoomName });
                     table.ForeignKey(
-                        name: "FK_Coords_Players_PlayerId",
-                        column: x => x.PlayerId,
+                        name: "FK_Coords_Players_PlayerNickname",
+                        column: x => x.PlayerNickname,
                         principalTable: "Players",
-                        principalColumn: "Token",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Nickname",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Coords_Rooms_RoomId",
-                        column: x => x.RoomId,
+                        name: "FK_Coords_Rooms_RoomName",
+                        column: x => x.RoomName,
                         principalTable: "Rooms",
                         principalColumn: "Name",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Coords_RoomId",
+                name: "IX_Coords_PlayerNickname",
                 table: "Coords",
-                column: "RoomId");
+                column: "PlayerNickname");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Rooms_AdminToken",
+                name: "IX_Coords_RoomName",
+                table: "Coords",
+                column: "RoomName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rooms_AdminNickname",
                 table: "Rooms",
-                column: "AdminToken");
+                column: "AdminNickname");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
