@@ -32,13 +32,9 @@ namespace larp_server.Hubs
             hubContext = context2;
             JWTInstance = new JWTWorker();
 
-            timer = new Timer(async (e) =>
+            timer = new Timer((e) =>
             {
-                var cli = hubContext.Clients;
-                if (cli != null)
-                {
-                    await hubContext.Clients.All.SendAsync("SendLocationToServer", "a");
-                }
+
 
             }, null, startTimeSpan, periodTimeSpan);
         }
