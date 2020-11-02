@@ -20,13 +20,34 @@ namespace larp_server.Hubs
     {
         private readonly GamesContext db;
         private readonly JWTWorker JWTInstance;
-        public GameHub(GamesContext context)
+        //needed because hub is short living and doesn't allow to use Clients when not trigerred
+        private IHubContext<GameHub> hubContext = null;
+
+        private TimeSpan startTimeSpan = TimeSpan.Zero;
+        private TimeSpan periodTimeSpan = TimeSpan.FromSeconds(1);
+        private Timer timer;
+        public GameHub(GamesContext context, IHubContext<GameHub> context2)
         {
             db = context;
+            hubContext = context2;
             JWTInstance = new JWTWorker();
+
+            timer = new Timer(async (e) =>
+            {
+                var cli = hubContext.Clients;
+                if (cli != null)
+                {
+                    await hubContext.Clients.All.SendAsync("SendLocationToServer", "a");
+                }
+
+            }, null, startTimeSpan, periodTimeSpan);
         }
-
-
+        ~GameHub()
+        {
+            timer = null;
+            startTimeSpan = TimeSpan.Zero;
+            periodTimeSpan = TimeSpan.FromSeconds(1);
+    }
         public async Task SendMessage(string user, string message)
         {
             await Clients.All.SendAsync("ReceiveMessage", user, message);
@@ -149,17 +170,20 @@ namespace larp_server.Hubs
                         list.Add(view);
                     }
                     string json = JsonSerializer.Serialize(list);
-                    await Clients.Caller.SendAsync("SuccessMessage", json);
+
+                    //zrobic podzial wysylania na teamy!!!!!!!!!
+                    await Clients.Caller.SendAsync("GetLocationFromServer", json);
+
                     break;
                 }
             }
         }
-        /*
+        
         public override Task OnConnectedAsync()
         {
             var id = Context.User.Identity;
             return base.OnConnectedAsync();
-        }*/
+        }
 
         public override Task OnDisconnectedAsync(Exception exception)
         {

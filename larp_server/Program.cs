@@ -18,12 +18,7 @@ namespace larp_server
     {
         public static void Main(string[] args)
         {
-            TimeSpan startTimeSpan = TimeSpan.Zero;
-            TimeSpan periodTimeSpan = TimeSpan.FromSeconds(1);
-            Timer timer = new Timer((e) =>
-            {
-                Debug.Write("AAAA");
-            }, null, startTimeSpan, periodTimeSpan);
+            
             //CreateHostBuilder(args).Build().Run();
             var host = CreateHostBuilder(args).Build();
 
