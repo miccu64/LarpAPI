@@ -52,12 +52,12 @@ namespace larp_server.Hubs
         {
             if (db.Players.Any(from => from.Email == email))
             {
-                await Clients.Caller.SendAsync("ErrorMessage", "Taki e-mail już istnieje. Podaj inny.");
+                await Clients.Caller.SendAsync("LoginRegisterError", "Taki e-mail już istnieje. Podaj inny.");
                 return;
             }
             if (db.Players.Any(from => from.Nickname == name))
             {
-                await Clients.Caller.SendAsync("ErrorMessage", "Taki login już istnieje. Podaj inny.");
+                await Clients.Caller.SendAsync("LoginRegisterError", "Taki login już istnieje. Podaj inny.");
                 return;
             }
             string token = JWTInstance.Encode(name, email);
@@ -73,7 +73,7 @@ namespace larp_server.Hubs
                 Player player = db.Players.First(p => p.Email == email);
                 await Clients.Caller.SendAsync("SaveToken", player.Token);
             }
-            else await Clients.Caller.SendAsync("ErrorMessage", "Niepoprawny login lub hasło.");
+            else await Clients.Caller.SendAsync("LoginRegisterError", "Niepoprawny login lub hasło.");
         }
         public async Task CreateRoom([Required] string roomName, [Required] string password, [Required] string token)
         {
