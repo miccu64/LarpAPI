@@ -64,7 +64,7 @@ namespace larp_server.Hubs
             Player player = new Player(email, name, password, token);
             await db.AddAsync(player);
             await db.SaveChangesAsync();
-            await Clients.Caller.SendAsync("SuccessMessage", "Pomyślnie zarejestrowano. Możesz się zalogować.");
+            await Clients.Caller.SendAsync("RegisterSuccess", "Pomyślnie zarejestrowano. Możesz się zalogować.");
         }
         public async Task Login([Required] string email, [Required] string password)
         {
