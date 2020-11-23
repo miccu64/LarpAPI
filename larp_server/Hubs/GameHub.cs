@@ -64,7 +64,7 @@ namespace larp_server.Hubs
             Player player = new Player(email, name, password, token);
             await db.AddAsync(player);
             await db.SaveChangesAsync();
-            await Clients.Caller.SendAsync("RegisterSuccess", "Pomyślnie zarejestrowano. Możesz się zalogować.");
+            await Clients.Caller.SendAsync("RegisterSuccess", "Pomyślnie zarejestrowano");
         }
         public async Task Login([Required] string email, [Required] string password)
         {
@@ -79,7 +79,7 @@ namespace larp_server.Hubs
         {
             if (!db.Players.Any(i => i.Token == token))
             {
-                await Clients.Caller.SendAsync("ErrorMessage", "Niepoprawny token. Zaloguj się ponownie.");
+                await Clients.Caller.SendAsync("GoToLogin", "Niepoprawny token. Zaloguj się ponownie.");
                 return;
             }
             //check if room with that name exists
@@ -107,7 +107,7 @@ namespace larp_server.Hubs
         {
             if (!db.Players.Any(i => i.Token == token))
             {
-                await Clients.Caller.SendAsync("ErrorMessage", "Niepoprawny token. Zaloguj się ponownie.");
+                await Clients.Caller.SendAsync("GoToLogin", "Niepoprawny token. Zaloguj się ponownie.");
                 return;
             }
             //check if room with that name exists
@@ -143,11 +143,46 @@ namespace larp_server.Hubs
             await db.SaveChangesAsync();
             await Clients.Caller.SendAsync("SuccessMessage", "Dołączono do pokoju.");
         }
+        public async Task JoinJoinedRoom([Required] string roomName, [Required] string token)
+        {
+            if (!db.Players.Any(i => i.Token == token))
+            {
+                await Clients.Caller.SendAsync("GoToLogin", "Niepoprawny token. Zaloguj się ponownie.");
+                return;
+            }
+            //check if room with that name exists
+            if (!db.Rooms.Any(from => from.Name == roomName))
+            {
+                await Clients.Caller.SendAsync("ErrorMessage", "Taki pokój nie istnieje.");
+                return;
+            }
+
+            Player player = db.Players.First(from => from.Token == token);
+            //disconnect player from all games
+            foreach (Coord c in player.CoordsList)
+            {
+                c.IsConnected = false;
+            }
+
+            //check if player was playing that game
+            if (!player.CoordsList.Any(c => c.RoomName == roomName))
+            {
+                await Clients.Caller.SendAsync("ErrorMessage", "Taki pokój nie istnieje.");
+                return;
+            }
+            
+            Coord coord = player.CoordsList.First(c => c.RoomName == roomName);
+            coord.IsConnected = true;
+            
+            player.ConnectionID = Context.ConnectionId;
+            await db.SaveChangesAsync();
+            await Clients.Caller.SendAsync("SuccessMessage", "Dołączono do pokoju.");
+        }
         public async Task UpdateLocation([Required] double lat, [Required] double lon, [Required] string token)
         {
             if (!db.Players.Any(i => i.Token == token))
             {
-                await Clients.Caller.SendAsync("ErrorMessage", "Niepoprawny token. Zaloguj się ponownie.");
+                await Clients.Caller.SendAsync("GoToLogin", "Niepoprawny token. Zaloguj się ponownie.");
                 return;
             }
             Player player = db.Players.First(p => p.Token == token);
