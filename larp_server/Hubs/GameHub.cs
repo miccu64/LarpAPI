@@ -71,7 +71,14 @@ namespace larp_server.Hubs
             if (db.Players.Any(p => p.Email == email && p.Password == password))
             {
                 Player player = db.Players.First(p => p.Email == email);
-                await Clients.Caller.SendAsync("SaveToken", player.Token);
+                //send to player list of joined rooms
+                List<string> list = new List<string>();
+                foreach (Coord c in player.CoordsList)
+                {
+                    list.Add(c.RoomName);
+                }
+                string json = JsonSerializer.Serialize(list);
+                await Clients.Caller.SendAsync("LoginSuccess", player.Token, json);
             }
             else await Clients.Caller.SendAsync("LoginRegisterError", "Niepoprawny login lub hasło.");
         }
