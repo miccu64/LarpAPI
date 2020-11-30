@@ -173,7 +173,7 @@ namespace larp_server.Hubs
             await db.SaveChangesAsync();
             await Clients.Caller.SendAsync("JoinedRoom", roomName);
         }
-        public async Task JoinJoinedRoom([Required] string roomName, [Required] string token)
+        public async Task JoinJoinedRoom([Required] string roomName, [Required] bool lostConnection, [Required] string token)
         {
             if (!db.Players.Any(i => i.Token == token))
             {
@@ -206,7 +206,9 @@ namespace larp_server.Hubs
             
             player.ConnectionID = Context.ConnectionId;
             await db.SaveChangesAsync();
-            await Clients.Caller.SendAsync("JoinedRoom", roomName);
+            //Z LOST CONNECTION NIE DZIALAAAAAAAAAAAAAA!!!
+            //await Clients.Caller.SendAsync("JoinedRoom", roomName, lostConnection);
+            await Clients.Caller.SendAsync("LoginRegisterError", "Niepoprawny login lub hasło.");
         }
         public async Task UpdateLocation([Required] double lat, [Required] double lon, [Required] string token)
         {
