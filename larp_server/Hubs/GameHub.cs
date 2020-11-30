@@ -43,10 +43,33 @@ namespace larp_server.Hubs
             timer = null;
             startTimeSpan = TimeSpan.Zero;
             periodTimeSpan = TimeSpan.FromSeconds(1);
-    }
-        public async Task SendMessage(string user, string message)
+        }
+        public async Task SendMessage([Required] string message, [Required] bool toAll, [Required] string token)
         {
-            await Clients.All.SendAsync("ReceiveMessage", user, message);
+            if (!db.Players.Any(i => i.Token == token))
+            {
+                await Clients.Caller.SendAsync("GoToLogin", "Niepoprawny token. Zaloguj się ponownie.");
+                return;
+            }
+            Player player = db.Players.First(p => p.Token == token);
+            List<string> userIds = new List<string>();
+            foreach (Coord c in player.CoordsList)
+            {
+                if (c.IsConnected == true)
+                {
+                    int team = c.TeamId;
+                    foreach (Coord c2 in c.Room.CoordsList)
+                    {
+                        if ((c2.IsConnected == true) && (c2.TeamId == team || toAll == true))
+                        {
+                            userIds.Add(c2.Player.ConnectionID);
+                        }
+                    }
+                    break;
+                }
+            }
+            await Clients.Clients(userIds).SendAsync("GetChatMessage", message);
+            //await Clients.Caller.SendAsync("GetChatMessage", message);
         }
         public async Task RegisterNewUser([Required] string email, [Required] string name, [Required] string password)
         {
@@ -82,7 +105,7 @@ namespace larp_server.Hubs
             }
             else await Clients.Caller.SendAsync("LoginRegisterError", "Niepoprawny login lub hasło.");
         }
-        public async Task CreateRoom([Required] string roomName, [Required] string password, [Required] string token)
+        public async Task CreateRoom([Required] string roomName, [Required] string password, [Required] int team, [Required] string token)
         {
             if (!db.Players.Any(i => i.Token == token))
             {
@@ -101,16 +124,16 @@ namespace larp_server.Hubs
             await db.Rooms.AddAsync(room);
             await db.SaveChangesAsync();
             //join to room
-            await JoinRoom(roomName, password, token);
+            await JoinRoom(roomName, password, team, token);
         }
-        private async void AddCoord(Room room, Player player)
+        private async void AddCoord(Room room, Player player, int team)
         {
-            Coord coord = new Coord(room, player);
+            Coord coord = new Coord(room, player, team);
             player.CoordsList.Add(coord);
             room.CoordsList.Add(coord);
             await db.Coords.AddAsync(coord);
         }
-        public async Task JoinRoom([Required] string roomName, [Required] string password, [Required] string token)
+        public async Task JoinRoom([Required] string roomName, [Required] string password, [Required] int team, [Required] string token)
         {
             if (!db.Players.Any(i => i.Token == token))
             {
@@ -140,7 +163,7 @@ namespace larp_server.Hubs
 
             //check if player were playing that game
             if (!player.CoordsList.Any(c => c.RoomName == roomName))
-                AddCoord(room, player);
+                AddCoord(room, player, team);
             else
             {
                 Coord coord = player.CoordsList.First(c => c.RoomName == roomName);
@@ -148,7 +171,7 @@ namespace larp_server.Hubs
             }
             player.ConnectionID = Context.ConnectionId;
             await db.SaveChangesAsync();
-            await Clients.Caller.SendAsync("SuccessMessage", "Dołączono do pokoju.");
+            await Clients.Caller.SendAsync("JoinedRoom", roomName);
         }
         public async Task JoinJoinedRoom([Required] string roomName, [Required] string token)
         {
@@ -183,7 +206,7 @@ namespace larp_server.Hubs
             
             player.ConnectionID = Context.ConnectionId;
             await db.SaveChangesAsync();
-            await Clients.Caller.SendAsync("SuccessMessage", "Dołączono do pokoju.");
+            await Clients.Caller.SendAsync("JoinedRoom", roomName);
         }
         public async Task UpdateLocation([Required] double lat, [Required] double lon, [Required] string token)
         {

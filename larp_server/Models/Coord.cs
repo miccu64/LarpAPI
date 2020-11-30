@@ -27,14 +27,14 @@ namespace larp_server.Models
         private Coord() { }
         //needed for collections to be not null
         private Coord(ILazyLoader lazyLoader) { this.lazyLoader = lazyLoader; }
-        public Coord(Room room1, Player player1)
+        public Coord(Room room1, Player player1, int team)
         {
             room = room1;
             player = player1;
             RoomName = room.Name;
             PlayerName = player.Nickname;
             IsConnected = true;
-            TeamId = 0;
+            TeamId = team;
             Latitude = 0;
             Longitude = 0;
         }
