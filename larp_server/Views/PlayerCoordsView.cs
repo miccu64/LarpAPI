@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using larp_server.Models;
 
 namespace larp_server.Views
 {
@@ -10,11 +11,11 @@ namespace larp_server.Views
         public string PlayerName { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
-        public PlayerCoordsView(string name, double lat, double lon)
+        public PlayerCoordsView(Coord coord)
         {
-            PlayerName = name;
-            Latitude = lat;
-            Longitude = lon;
+            PlayerName = coord.RoomName;
+            Latitude = coord.Latitude;
+            Longitude = coord.Longitude;
         }
     }
 }

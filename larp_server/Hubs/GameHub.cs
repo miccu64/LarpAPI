@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace larp_server.Hubs
 {
@@ -24,7 +25,7 @@ namespace larp_server.Hubs
         private IHubContext<GameHub> hubContext = null;
 
         private TimeSpan startTimeSpan = TimeSpan.Zero;
-        private TimeSpan periodTimeSpan = TimeSpan.FromSeconds(1);
+        private TimeSpan periodTimeSpan = TimeSpan.FromSeconds(2);
         private Timer timer;
         public GameHub(GamesContext context, IHubContext<GameHub> context2)
         {
@@ -32,17 +33,35 @@ namespace larp_server.Hubs
             hubContext = context2;
             JWTInstance = new JWTWorker();
 
-            timer = new Timer((e) =>
+            timer = new Timer(async (e) =>
             {
-
-
+                await doItNow();
             }, null, startTimeSpan, periodTimeSpan);
+        }
+
+        public async Task doItNow() {
+            var rooms = await db.Rooms.Include(k => new { k.CoordsList, k.Admin}).ToListAsync();
+
+                foreach (Room r in rooms) {
+                    List<string>[] userIdsByTeam = new List<string>[4];
+                    List<PlayerCoordsView>[] coordsByTeam = new List<PlayerCoordsView>[4];
+                    foreach (Coord c in r.CoordsList) {
+                        if (c.TeamId > 0 && c.TeamId < 5)
+                        {
+                            userIdsByTeam[c.TeamId-1].Add(c.Player.ConnectionID);
+                            coordsByTeam[c.TeamId-1].Add(new PlayerCoordsView(c));
+                        }      
+                    }
+                    for (int a=0; a<4; a++)
+                    {
+                        string json = JsonSerializer.Serialize(coordsByTeam[a]);
+                        await Clients.Clients(userIdsByTeam[a]).SendAsync("GetLocationFromServer", json);             
+                    }
+                }
         }
         ~GameHub()
         {
             timer = null;
-            startTimeSpan = TimeSpan.Zero;
-            periodTimeSpan = TimeSpan.FromSeconds(1);
         }
         public async Task SendMessage([Required] string message, [Required] bool toAll, [Required] string token)
         {
@@ -68,8 +87,13 @@ namespace larp_server.Hubs
                     break;
                 }
             }
-            await Clients.Clients(userIds).SendAsync("GetChatMessage", message);
-            //await Clients.Caller.SendAsync("GetChatMessage", message);
+            string who = player.Nickname;
+            if (toAll == true)
+            {
+                who += " (wszyscy): ";
+            }
+            else who += ": ";
+            await Clients.Clients(userIds).SendAsync("GetChatMessage", who + message);;
         }
         public async Task RegisterNewUser([Required] string email, [Required] string name, [Required] string password)
         {
@@ -206,9 +230,10 @@ namespace larp_server.Hubs
             
             player.ConnectionID = Context.ConnectionId;
             await db.SaveChangesAsync();
-            //Z LOST CONNECTION NIE DZIALAAAAAAAAAAAAAA!!!
-            //await Clients.Caller.SendAsync("JoinedRoom", roomName, lostConnection);
-            await Clients.Caller.SendAsync("LoginRegisterError", "Niepoprawny login lub hasło.");
+            if (lostConnection == false)
+            {
+                await Clients.Caller.SendAsync("JoinedRoom", roomName);
+            }        
         }
         public async Task UpdateLocation([Required] double lat, [Required] double lon, [Required] string token)
         {
@@ -225,18 +250,6 @@ namespace larp_server.Hubs
                     c.Latitude = lat;
                     c.Longitude = lon;
                     await db.SaveChangesAsync();
-
-                    List<PlayerCoordsView> list = new List<PlayerCoordsView>();
-                    foreach (Coord c2 in c.Room.CoordsList)
-                    {
-                        PlayerCoordsView view = new PlayerCoordsView(c2.PlayerName, c2.Latitude, c2.Longitude);
-                        list.Add(view);
-                    }
-                    string json = JsonSerializer.Serialize(list);
-
-                    //zrobic podzial wysylania na teamy!!!!!!!!!
-                    await Clients.Caller.SendAsync("GetLocationFromServer", json);
-
                     break;
                 }
             }
