@@ -13,6 +13,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace larp_server.Hubs
 {
@@ -21,47 +22,11 @@ namespace larp_server.Hubs
     {
         private readonly GamesContext db;
         private readonly JWTWorker JWTInstance;
-        //needed because hub is short living and doesn't allow to use Clients when not trigerred
-        private IHubContext<GameHub> hubContext = null;
 
-        private TimeSpan startTimeSpan = TimeSpan.Zero;
-        private TimeSpan periodTimeSpan = TimeSpan.FromSeconds(2);
-        private Timer timer;
-        public GameHub(GamesContext context, IHubContext<GameHub> context2)
+        public GameHub(GamesContext context)
         {
             db = context;
-            hubContext = context2;
             JWTInstance = new JWTWorker();
-
-            timer = new Timer(async (e) =>
-            {
-                await doItNow();
-            }, null, startTimeSpan, periodTimeSpan);
-        }
-
-        public async Task doItNow() {
-            var rooms = await db.Rooms.Include(k => new { k.CoordsList, k.Admin}).ToListAsync();
-
-                foreach (Room r in rooms) {
-                    List<string>[] userIdsByTeam = new List<string>[4];
-                    List<PlayerCoordsView>[] coordsByTeam = new List<PlayerCoordsView>[4];
-                    foreach (Coord c in r.CoordsList) {
-                        if (c.TeamId > 0 && c.TeamId < 5)
-                        {
-                            userIdsByTeam[c.TeamId-1].Add(c.Player.ConnectionID);
-                            coordsByTeam[c.TeamId-1].Add(new PlayerCoordsView(c));
-                        }      
-                    }
-                    for (int a=0; a<4; a++)
-                    {
-                        string json = JsonSerializer.Serialize(coordsByTeam[a]);
-                        await Clients.Clients(userIdsByTeam[a]).SendAsync("GetLocationFromServer", json);             
-                    }
-                }
-        }
-        ~GameHub()
-        {
-            timer = null;
         }
         public async Task SendMessage([Required] string message, [Required] bool toAll, [Required] string token)
         {
@@ -254,12 +219,32 @@ namespace larp_server.Hubs
                 }
             }
         }
-        
+
+        public async Task LeaveRoom([Required] string token, [Required] string roomName)
+        {
+            if (!db.Players.Any(i => i.Token == token))
+            {
+                await Clients.Caller.SendAsync("GoToLogin", "Niepoprawny token. Zaloguj się ponownie.");
+                return;
+            }
+            Player player = db.Players.First(p => p.Token == token);
+            foreach (Coord c in player.CoordsList)
+            {
+                if (c.RoomName == roomName)
+                {
+                    db.Coords.Remove(c);
+                    //NIESKONCZONE
+                }
+            }
+            
+        }
+
+        /*
         public override Task OnConnectedAsync()
         {
             var id = Context.User.Identity;
             return base.OnConnectedAsync();
-        }
+        }*/
 
         public override Task OnDisconnectedAsync(Exception exception)
         {

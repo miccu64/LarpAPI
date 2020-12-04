@@ -9,7 +9,7 @@ using Server.Models;
 namespace larp_server.Migrations
 {
     [DbContext(typeof(GamesContext))]
-    [Migration("20201028133658_Initial")]
+    [Migration("20201204150238_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

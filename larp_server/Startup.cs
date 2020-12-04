@@ -42,7 +42,7 @@ namespace larp_server
                 options.EnableDetailedErrors = true;
             });
             services.AddMvc(option => option.EnableEndpointRouting = false);
-
+            services.AddHostedService<HubTimerWorker>();
 
         }
 
