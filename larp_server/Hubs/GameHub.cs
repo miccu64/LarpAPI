@@ -52,7 +52,7 @@ namespace larp_server.Hubs
                 who += " (wszyscy): ";
             }
             else who += ": ";
-            await Clients.Clients(userIds).SendAsync("GetChatMessage", who + message);;
+            await Clients.Clients(userIds).SendAsync("GetChatMessage", who + message);
         }
         public async Task RegisterNewUser([Required] string email, [Required] string name, [Required] string password)
         {
@@ -226,19 +226,51 @@ namespace larp_server.Hubs
             {
                 if (c.RoomName == roomName)
                 {
+                    player.CoordsList.Remove(c);
+                    c.Room.CoordsList.Remove(c);
                     db.Coords.Remove(c);
-                    //NIESKONCZONE
+                    await db.SaveChangesAsync();
+                    await Clients.Caller.SendAsync("GoToLogin", "Pomyślnie opuściłeś pokój.");
+                    return;
                 }
             }
-            
         }
 
-        /*
-        public override Task OnConnectedAsync()
+        public async Task ThrowPlayer([Required] string token, [Required] string roomName, [Required] string playerName)
         {
-            var id = Context.User.Identity;
-            return base.OnConnectedAsync();
-        }*/
+            if (!db.Players.Any(i => i.Token == token))
+            {
+                await Clients.Caller.SendAsync("GoToLogin", "Niepoprawny token. Zaloguj się ponownie.");
+                return;
+            }
+            Player player = db.Players.First(p => p.Token == token);
+            if (player.Nickname == playerName)
+            {
+                return;
+            }
+            if (!db.Players.Any(i => i.Nickname == playerName))
+            {
+                await Clients.Caller.SendAsync("ErrorMessage", "Nie ma takiego gracza w grze.");
+                return;
+            }
+            Player playerToThrow = db.Players.First(p => p.Nickname == playerName);
+            foreach (Coord c in playerToThrow.CoordsList)
+            {
+                if (c.RoomName == roomName)
+                {
+                    if (c.IsConnected)
+                    {
+                        await Clients.Client(playerToThrow.ConnectionID).SendAsync("GoToLogin", "Zostałeś wyrzucony z pokoju.");
+                    }
+                    playerToThrow.CoordsList.Remove(c);
+                    c.Room.CoordsList.Remove(c);
+                    db.Coords.Remove(c);
+                    await db.SaveChangesAsync();
+                    await Clients.Caller.SendAsync("GoToLogin", "Pomyślnie opuściłeś pokój.");
+                    return;
+                }
+            }
+        }
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
