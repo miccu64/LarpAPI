@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Server.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -61,7 +60,6 @@ namespace larp_server.Hubs
                                 await _hub.Clients.Clients(userIdsByTeam[a]).SendAsync("SuccessMessage", json);
                                 await _hub.Clients.Clients(userIdsByTeam[a]).SendAsync("GetLocationFromServer", json);
                             }
-                            
                         }
                     }
                 }

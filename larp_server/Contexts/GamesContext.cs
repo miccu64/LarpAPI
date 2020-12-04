@@ -1,9 +1,6 @@
 ﻿using larp_server.Models;
 using Microsoft.EntityFrameworkCore;
 
-//using MySql.Data.Entity;
-using MySql.Data.EntityFrameworkCore;
-
 namespace Server.Models
 {
     public class GamesContext : DbContext
@@ -14,7 +11,7 @@ namespace Server.Models
 
         public GamesContext(DbContextOptions<GamesContext> options) : base(options)
         {
-            this.Database.Migrate();
+            Database.Migrate();
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,9 +22,6 @@ namespace Server.Models
                 .HasMany(c => c.CoordsList)
                 .WithOne(r => r.Room);
             modelBuilder.Entity<Coord>().ToTable("Coords").HasKey(k => new { k.PlayerName, k.RoomName });
-            
-            //modelBuilder.Entity<Player>().ToTable("Player");
-            //modelBuilder.Entity<Room>().ToTable("Room");
         }
     }
 
