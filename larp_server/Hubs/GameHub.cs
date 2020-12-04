@@ -58,12 +58,12 @@ namespace larp_server.Hubs
         {
             if (db.Players.Any(from => from.Email == email))
             {
-                await Clients.Caller.SendAsync("LoginRegisterError", "Taki e-mail już istnieje. Podaj inny.");
+                await Clients.Caller.SendAsync("ShowMessage", "Taki e-mail już istnieje. Podaj inny.");
                 return;
             }
             if (db.Players.Any(from => from.Nickname == name))
             {
-                await Clients.Caller.SendAsync("LoginRegisterError", "Taki login już istnieje. Podaj inny.");
+                await Clients.Caller.SendAsync("ShowMessage", "Taki login już istnieje. Podaj inny.");
                 return;
             }
             string token = JWTInstance.Encode(name, email);
@@ -86,7 +86,7 @@ namespace larp_server.Hubs
                 string json = JsonSerializer.Serialize(list);
                 await Clients.Caller.SendAsync("LoginSuccess", player.Token, json);
             }
-            else await Clients.Caller.SendAsync("LoginRegisterError", "Niepoprawny login lub hasło.");
+            else await Clients.Caller.SendAsync("ShowMessage", "Niepoprawny login lub hasło.");
         }
         public async Task CreateRoom([Required] string roomName, [Required] string password, [Required] int team, [Required] string token)
         {
@@ -98,7 +98,7 @@ namespace larp_server.Hubs
             //check if room with that name exists
             if (db.Rooms.Any(from => from.Name == roomName))
             {
-                await Clients.Caller.SendAsync("ErrorMessage", "Taki pokój już istnieje. Podaj inną nazwę.");
+                await Clients.Caller.SendAsync("ShowMessage", "Taki pokój już istnieje. Podaj inną nazwę.");
                 return;
             } 
 
@@ -126,14 +126,14 @@ namespace larp_server.Hubs
             //check if room with that name exists
             if (!db.Rooms.Any(from => from.Name == roomName))
             {
-                await Clients.Caller.SendAsync("ErrorMessage", "Taki pokój nie istnieje.");
+                await Clients.Caller.SendAsync("ShowMessage", "Taki pokój nie istnieje.");
                 return;
             } 
             //check passwords
             Room room = db.Rooms.First(from => from.Name == roomName);
             if (room.Password != password)
             {
-                await Clients.Caller.SendAsync("ErrorMessage", "Niepoprawne hasło.");
+                await Clients.Caller.SendAsync("ShowMessage", "Niepoprawne hasło.");
                 return;
             }
 
@@ -166,7 +166,7 @@ namespace larp_server.Hubs
             //check if room with that name exists
             if (!db.Rooms.Any(from => from.Name == roomName))
             {
-                await Clients.Caller.SendAsync("ErrorMessage", "Taki pokój nie istnieje.");
+                await Clients.Caller.SendAsync("ShowMessage", "Taki pokój nie istnieje.");
                 return;
             }
 
@@ -180,7 +180,7 @@ namespace larp_server.Hubs
             //check if player was playing that game
             if (!player.CoordsList.Any(c => c.RoomName == roomName))
             {
-                await Clients.Caller.SendAsync("ErrorMessage", "Taki pokój nie istnieje.");
+                await Clients.Caller.SendAsync("ShowMessage", "Taki pokój nie istnieje.");
                 return;
             }
             
@@ -250,7 +250,7 @@ namespace larp_server.Hubs
             }
             if (!db.Players.Any(i => i.Nickname == playerName))
             {
-                await Clients.Caller.SendAsync("ErrorMessage", "Nie ma takiego gracza w grze.");
+                await Clients.Caller.SendAsync("ShowMessage", "Nie ma takiego gracza w grze.");
                 return;
             }
             Player playerToThrow = db.Players.First(p => p.Nickname == playerName);
