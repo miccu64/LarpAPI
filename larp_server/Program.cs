@@ -4,6 +4,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Server.Models;
+using System.Linq;
+using larp_server.Models;
 
 namespace larp_server
 {
@@ -19,12 +21,19 @@ namespace larp_server
                 try
                 {
                     var context = services.GetRequiredService<GamesContext>();
+                    //disconnect all players when restarting server
+                    var players = context.Players.ToList();
+                    foreach (Player p in players)
+                    {
+                        foreach (Coord c in p.CoordsList)
+                        {
+                            c.IsConnected = false;
+                        }
+                    }
+                    context.SaveChanges();
                 }
                 catch (Exception ex)
-                {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred while seeding the database.");
-                }
+                { }
             }
 
             host.Run();
