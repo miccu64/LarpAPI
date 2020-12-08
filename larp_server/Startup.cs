@@ -31,7 +31,6 @@ namespace larp_server
                        .AllowAnyHeader()));
             services.AddDbContext<GamesContext>(options =>
                 options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddControllersWithViews();
             services.AddSignalR().AddHubOptions<GameHub>(options =>
             {
                 options.EnableDetailedErrors = true;

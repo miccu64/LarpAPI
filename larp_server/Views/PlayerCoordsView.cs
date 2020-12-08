@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using larp_server.Models;
+﻿using larp_server.Models;
 
 namespace larp_server.Views
 {

@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
@@ -16,9 +15,8 @@ namespace larp_server.Models
         public string Name { get; set; }
         [StringLength(30)]
         public string Password { get; set; }
-        private Player admin;
-        public DateTime LastPlayed { get; set; }
         private ICollection<Coord> coordsList;
+        private Player admin;
 
         //EFCore needs empty constructors, even empty
         private Room() { }
@@ -30,7 +28,6 @@ namespace larp_server.Models
             Name = roomName;
             Password = password;
             Admin = player;
-            LastPlayed = DateTime.UtcNow;
             CoordsList = new Collection<Coord>();
         }
         //getter and setter for coords
@@ -39,7 +36,8 @@ namespace larp_server.Models
             get => lazyLoader.Load(this, ref coordsList);
             set => coordsList = value;
         }
-        public Player Admin {
+        public Player Admin
+        {
             get => lazyLoader.Load(this, ref admin);
             set => admin = value;
         }

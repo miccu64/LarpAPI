@@ -1,7 +1,6 @@
 using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Server.Models;
 using System.Linq;
@@ -32,8 +31,7 @@ namespace larp_server
                     }
                     context.SaveChanges();
                 }
-                catch (Exception ex)
-                { }
+                catch (Exception) { }
             }
 
             host.Run();

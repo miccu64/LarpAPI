@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace larp_server.Migrations
 {
@@ -28,7 +27,6 @@ namespace larp_server.Migrations
                 {
                     Name = table.Column<string>(maxLength: 30, nullable: false),
                     Password = table.Column<string>(maxLength: 30, nullable: true),
-                    LastPlayed = table.Column<DateTime>(nullable: false),
                     AdminNickname = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
