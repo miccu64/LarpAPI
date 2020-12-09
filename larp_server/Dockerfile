@@ -19,8 +19,11 @@ COPY --from=build-env /app/out .
 # Run the app on container startup
 # Use your project name for the second parameter
 # e.g. MyProject.dll
-# ENTRYPOINT [ "dotnet", "HerokuApp.dll" ]
+# ENTRYPOINT [ "dotnet", "larp_server.dll" ]
 
-# ENTRYPOINT [ "dotnet", "HerokuApp.dll" ]
+# ODKOMENTOWAC ZEBY DZIALALO LOKALNIE!!!
+# ENTRYPOINT [ "dotnet", "larp_server.dll" ]
 # Use the following instead for Heroku
-CMD ASPNETCORE_URLS=http://*:$PORT dotnet HerokuApp.dll
+
+# ODKOMENTOWAC ZEBY DZIALALO NA HEROKU!!!
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet larp_server.dll

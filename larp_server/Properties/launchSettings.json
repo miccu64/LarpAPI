@@ -11,6 +11,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "environmentVariables": {
+        "MYSQL_CONNECTION": "server=eu-cdbr-west-03.cleardb.net;database=heroku_f4dd167c197015e;user=b5153296188fed;password=0016602e",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },

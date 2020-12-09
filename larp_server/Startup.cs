@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Server.Models;
 using larp_server.Hubs;
+using System;
 
 namespace larp_server
 {
@@ -30,7 +31,8 @@ namespace larp_server
                        //.AllowCredentials()
                        .AllowAnyHeader()));
             services.AddDbContext<GamesContext>(options =>
-                options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseMySQL(Environment.GetEnvironmentVariable("MYSQL_CONNECTION")));
+                //options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
             services.AddSignalR().AddHubOptions<GameHub>(options =>
             {
                 options.EnableDetailedErrors = true;
