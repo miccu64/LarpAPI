@@ -31,8 +31,8 @@ namespace larp_server
                        //.AllowCredentials()
                        .AllowAnyHeader()));
             services.AddDbContext<GamesContext>(options =>
-                options.UseMySQL(Environment.GetEnvironmentVariable("MYSQL_CONNECTION")));
-                //options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
+                //options.UseMySQL(Environment.GetEnvironmentVariable("MYSQL_CONNECTION")));
+                options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
             services.AddSignalR().AddHubOptions<GameHub>(options =>
             {
                 options.EnableDetailedErrors = true;

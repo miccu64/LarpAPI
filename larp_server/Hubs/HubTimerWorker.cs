@@ -28,10 +28,13 @@ namespace larp_server.Hubs
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                using (var scope = _serviceScopeFactory.CreateScope())
+                if (CountPlayers.ConnectedPlayers < 1)
+                {
+                    await Task.Delay(2000);
+                } else using (var scope = _serviceScopeFactory.CreateScope())
                 {
                     var _db = scope.ServiceProvider.GetService<GamesContext>();
-                    var rooms = _db.Rooms.ToList();//.ToListAsync();
+                    var rooms = _db.Rooms.ToList();
                     foreach (Room r in rooms)
                     {
                         List<string>[] userIdsByTeam = new List<string>[4];

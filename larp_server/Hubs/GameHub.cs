@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 
 namespace larp_server.Hubs
 {
-    //[EnableCors("MyPolicy")]
     public class GameHub : Hub
     {
         private readonly GamesContext db;
@@ -58,6 +57,10 @@ namespace larp_server.Hubs
         }
         public async Task RegisterNewUser([Required] string email, [Required] string name, [Required] string password)
         {
+            if (name.Length < 4 || password.Length < 4 || email.Length < 4)
+            {
+                return;
+            }
             if (db.Players.Any(from => from.Email == email))
             {
                 await Clients.Caller.SendAsync("ShowMessage", "Taki e-mail już istnieje. Podaj inny.");
@@ -76,6 +79,10 @@ namespace larp_server.Hubs
         }
         public async Task Login([Required] string email, [Required] string password)
         {
+            if (password.Length < 4 || email.Length < 4)
+            {
+                return;
+            }
             if (db.Players.Any(p => p.Email == email && p.Password == password))
             {
                 Player player = db.Players.First(p => p.Email == email);
@@ -92,6 +99,10 @@ namespace larp_server.Hubs
         }
         public async Task CreateRoom([Required] string roomName, [Required] string password, [Required] int team, [Required] string token)
         {
+            if (roomName.Length < 4 || password.Length < 4)
+            {
+                return;
+            }
             if (!db.Players.Any(i => i.Token == token))
             {
                 await Clients.Caller.SendAsync("GoToLogin", "Niepoprawny token. Zaloguj się ponownie.");
@@ -326,6 +337,11 @@ namespace larp_server.Hubs
             }
             await Clients.Caller.SendAsync("ShowMessage", "Nie ma takiego gracza w grze.");
         }
+        public override Task OnConnectedAsync()
+        {
+            CountPlayers.ConnectedPlayers++;
+            return base.OnConnectedAsync();
+        }
         public override Task OnDisconnectedAsync(Exception exception)
         {
             //disconnect player from games
@@ -338,6 +354,7 @@ namespace larp_server.Hubs
                 }
                 db.SaveChangesAsync();
             }
+            CountPlayers.ConnectedPlayers--;
             return base.OnDisconnectedAsync(exception);
         }
     }
