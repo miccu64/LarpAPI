@@ -21,11 +21,20 @@ namespace larp_server.Hubs
             db = context;
             JWTInstance = new JWTWorker();
         }
-        public async Task SendMessage([Required] string message, [Required] string roomName, [Required] bool toAll, [Required] string token)
+        private async Task<bool> CheckToken(string token)
         {
             if (!db.Players.Any(i => i.Token == token))
             {
                 await Clients.Caller.SendAsync("GoToLogin", "Niepoprawny token. Zaloguj się ponownie.");
+                return true;
+            }
+            return false;
+        }
+
+        public async Task SendMessage([Required] string message, [Required] string roomName, [Required] bool toAll, [Required] string token)
+        {
+            if (await CheckToken(token))
+            {
                 return;
             }
             Player player = db.Players.First(p => p.Token == token);
@@ -103,9 +112,8 @@ namespace larp_server.Hubs
             {
                 return;
             }
-            if (!db.Players.Any(i => i.Token == token))
+            if (await CheckToken(token))
             {
-                await Clients.Caller.SendAsync("GoToLogin", "Niepoprawny token. Zaloguj się ponownie.");
                 return;
             }
             if (db.Rooms.Any(from => from.Name == roomName))
@@ -130,9 +138,8 @@ namespace larp_server.Hubs
         }
         public async Task JoinRoom([Required] string roomName, [Required] string password, [Required] int team, [Required] string token)
         {
-            if (!db.Players.Any(i => i.Token == token))
+            if (await CheckToken(token))
             {
-                await Clients.Caller.SendAsync("GoToLogin", "Niepoprawny token. Zaloguj się ponownie.");
                 return;
             }
             //check if room with that name exists
@@ -172,9 +179,8 @@ namespace larp_server.Hubs
         }
         public async Task JoinJoinedRoom([Required] string roomName, [Required] bool lostConnection, [Required] string token)
         {
-            if (!db.Players.Any(i => i.Token == token))
+            if (await CheckToken(token))
             {
-                await Clients.Caller.SendAsync("GoToLogin", "Niepoprawny token. Zaloguj się ponownie.");
                 return;
             }
 
@@ -205,9 +211,8 @@ namespace larp_server.Hubs
         }
         public async Task UpdateLocation([Required] double lat, [Required] double lon, [Required] string token)
         {
-            if (!db.Players.Any(i => i.Token == token))
+            if (await CheckToken(token))
             {
-                await Clients.Caller.SendAsync("GoToLogin", "Niepoprawny token. Zaloguj się ponownie.");
                 return;
             }
             Player player = db.Players.First(p => p.Token == token);
@@ -247,9 +252,8 @@ namespace larp_server.Hubs
         }
         public async Task LeaveRoom([Required] string roomName, [Required] string token)
         {
-            if (!db.Players.Any(i => i.Token == token))
+            if (await CheckToken(token))
             {
-                await Clients.Caller.SendAsync("GoToLogin", "Niepoprawny token. Zaloguj się ponownie.");
                 return;
             }
             Player player = db.Players.First(p => p.Token == token);

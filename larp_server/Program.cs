@@ -33,9 +33,7 @@ namespace larp_server
                 }
                 catch (Exception) { }
             }
-
             host.Run();
-
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

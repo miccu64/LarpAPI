@@ -6,7 +6,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Server.Models;
 using larp_server.Hubs;
-using System;
 
 namespace larp_server
 {
@@ -24,11 +23,8 @@ namespace larp_server
         {
             services.AddCors(options =>
                 options.AddDefaultPolicy(builder =>
-                builder//.AllowAnyOrigin()
-                       .AllowAnyOrigin()
-                       //.SetIsOriginAllowed((host) => true)
+                builder.AllowAnyOrigin()
                        .AllowAnyMethod()
-                       //.AllowCredentials()
                        .AllowAnyHeader()));
             services.AddDbContext<GamesContext>(options =>
                 //options.UseMySQL(Environment.GetEnvironmentVariable("MYSQL_CONNECTION")));
@@ -37,16 +33,13 @@ namespace larp_server
             {
                 options.EnableDetailedErrors = true;
             });
-            services.AddMvc(option => option.EnableEndpointRouting = false);
             services.AddHostedService<HubTimerWorker>();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseCors();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -57,27 +50,17 @@ namespace larp_server
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            //app.UseHttpsRedirection();
-            app.UseStaticFiles();
             app.UseAuthentication();
             app.UseRouting();
-
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<GameHub>("/gamehub");
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-                
+                endpoints.MapHub<GameHub>("/gamehub");                
             });
 
-            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetRequiredService<GamesContext>();
-                context.Database.Migrate();
-            }
+            using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
+            var context = serviceScope.ServiceProvider.GetRequiredService<GamesContext>();
+            context.Database.Migrate();
         }
     }
 }
