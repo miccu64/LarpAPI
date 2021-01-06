@@ -1,11 +1,12 @@
+using larp_server.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Server.Models;
-using larp_server.Hubs;
+using System;
 
 namespace larp_server
 {
@@ -27,8 +28,8 @@ namespace larp_server
                        .AllowAnyMethod()
                        .AllowAnyHeader()));
             services.AddDbContext<GamesContext>(options =>
-                //options.UseMySQL(Environment.GetEnvironmentVariable("MYSQL_CONNECTION")));
-                options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseMySQL(Environment.GetEnvironmentVariable("MYSQL_CONNECTION")));
+            //options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
             services.AddSignalR().AddHubOptions<GameHub>(options =>
             {
                 options.EnableDetailedErrors = true;
@@ -55,7 +56,7 @@ namespace larp_server
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<GameHub>("/gamehub");                
+                endpoints.MapHub<GameHub>("/gamehub");
             });
 
             using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();

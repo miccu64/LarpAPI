@@ -31,41 +31,42 @@ namespace larp_server.Hubs
                 if (CountPlayers.ConnectedPlayers < 1)
                 {
                     await Task.Delay(2000);
-                } else using (var scope = _serviceScopeFactory.CreateScope())
-                {
-                    var _db = scope.ServiceProvider.GetService<GamesContext>();
-                    var rooms = _db.Rooms.ToList();
-                    foreach (Room r in rooms)
+                }
+                else using (var scope = _serviceScopeFactory.CreateScope())
                     {
-                        List<string>[] userIdsByTeam = new List<string>[4];
-                        List<PlayerCoordsView>[] coordsByTeam = new List<PlayerCoordsView>[4];
-                        for (int a = 0; a < 4; a++)
+                        var _db = scope.ServiceProvider.GetService<GamesContext>();
+                        var rooms = _db.Rooms.ToList();
+                        foreach (Room r in rooms)
                         {
-                            userIdsByTeam[a] = new List<string>();
-                            coordsByTeam[a] = new List<PlayerCoordsView>();
-                        }
-                        foreach (Coord c in r.CoordsList)
-                        {
-                            if (c.TeamId > 0 && c.TeamId < 5)
+                            List<string>[] userIdsByTeam = new List<string>[4];
+                            List<PlayerCoordsView>[] coordsByTeam = new List<PlayerCoordsView>[4];
+                            for (int a = 0; a < 4; a++)
                             {
-                                if (c.IsConnected)
-                                {
-                                    userIdsByTeam[c.TeamId - 1].Add(c.Player.ConnectionID);
-                                }
-                                coordsByTeam[c.TeamId - 1].Add(new PlayerCoordsView(c));
+                                userIdsByTeam[a] = new List<string>();
+                                coordsByTeam[a] = new List<PlayerCoordsView>();
                             }
-                        }
-                        for (int a = 0; a < 4; a++)
-                        {
-                            if (userIdsByTeam[a].Count > 0)
+                            foreach (Coord c in r.CoordsList)
                             {
-                                string json = JsonSerializer.Serialize(coordsByTeam[a]);
-                                await _hub.Clients.Clients(userIdsByTeam[a]).SendAsync("SuccessMessage", json);
-                                await _hub.Clients.Clients(userIdsByTeam[a]).SendAsync("GetLocationFromServer", json);
+                                if (c.TeamId > 0 && c.TeamId < 5)
+                                {
+                                    if (c.IsConnected)
+                                    {
+                                        userIdsByTeam[c.TeamId - 1].Add(c.Player.ConnectionID);
+                                    }
+                                    coordsByTeam[c.TeamId - 1].Add(new PlayerCoordsView(c));
+                                }
+                            }
+                            for (int a = 0; a < 4; a++)
+                            {
+                                if (userIdsByTeam[a].Count > 0)
+                                {
+                                    string json = JsonSerializer.Serialize(coordsByTeam[a]);
+                                    await _hub.Clients.Clients(userIdsByTeam[a]).SendAsync("SuccessMessage", json);
+                                    await _hub.Clients.Clients(userIdsByTeam[a]).SendAsync("GetLocationFromServer", json);
+                                }
                             }
                         }
                     }
-                }
                 await Task.Delay(2000);
             }
         }
