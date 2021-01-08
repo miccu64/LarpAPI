@@ -9,7 +9,7 @@ namespace larp_server.Views
         public double Longitude { get; set; }
         public PlayerCoordsView(Coord coord)
         {
-            PlayerName = coord.RoomName;
+            PlayerName = coord.PlayerName;
             Latitude = coord.Latitude;
             Longitude = coord.Longitude;
         }
